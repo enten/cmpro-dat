@@ -1,0 +1,7 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+#region Prettier
+echo ".husky/pre-commit: Format code with prettier"
+npm run format:quick -- --staged
+#endregion

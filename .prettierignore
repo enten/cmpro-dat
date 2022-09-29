@@ -1,0 +1,13 @@
+# Add files here to ignore them from prettier formatting
+
+/dist
+/coverage
+/tmp
+/.vscode
+.prettierrc
+jest.config.js
+package.json
+package-lock.json
+tsconfig.json
+tsconfig.lib.json
+tsconfig.spec.json

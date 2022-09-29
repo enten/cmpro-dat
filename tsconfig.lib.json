@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": "./src",
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "module": "commonjs",
+    "types": ["node"],
+    "declaration": true,
+    "strict": false
+  },
+  "files": ["./src/cmpro-dat.ts"],
+  "include": ["./src/**/*.d.ts"]
+}
