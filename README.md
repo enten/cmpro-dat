@@ -13,6 +13,8 @@ npm install cmpro-dat
 
 ## Usage
 
+### DAT.parse
+
 ```javascript
 const DAT = require('cmpro-dat');
 
@@ -57,6 +59,52 @@ DAT.parse(text).then(data => {
 //     rom: { crc: '1C4C54D2' }
 //   }
 // ]
+```
+
+### DAT.stringify
+
+```javascript
+const DAT = require('cmpro-dat');
+
+const datString = DAT.stringify([
+  {
+    __type: 'clrmamepro',
+    name: 'Nintendo - Super Nintendo Entertainment System',
+    description: 'Nintendo - Super Nintendo Entertainment System',
+  },
+  {
+    __type: 'game',
+    comment: 'Chrono Trigger (Japan)',
+    origin: 'Japan',
+    rom: { crc: '4D014C20' },
+  },
+  {
+    __type: 'game',
+    comment: 'Ultimate Mortal Kombat 3 (Europe)',
+    origin: 'US',
+    rom: { crc: '1C4C54D2' },
+  },
+]);
+// clrmamepro (
+//   name "Nintendo - Super Nintendo Entertainment System"
+//   description "Nintendo - Super Nintendo Entertainment System"
+// )
+//
+// game (
+//   comment "Chrono Trigger (Japan)"
+//   origin Japan
+//   rom (
+//     crc "4D014C20"
+//   )
+// )
+//
+// game (
+//   comment "Ultimate Mortal Kombat 3 (Europe)"
+//   origin US
+//   rom (
+//     crc "1C4C54D2"
+//   )
+// )
 ```
 
 ## License

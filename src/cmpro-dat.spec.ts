@@ -1,6 +1,6 @@
 import * as DAT from './cmpro-dat';
 
-describe('datParse', () => {
+describe('DAT.parse', () => {
   const DAT_FIXTURE = `
 
 clrmamepro (
@@ -13,6 +13,8 @@ game (
    origin "Japan"
 	rom ( crc 4D014C20  )
 )
+
+game ( )
 
 game (
 	comment "Ultimate Mortal Kombat 3 (Europe)"
@@ -40,6 +42,7 @@ game (
         origin: 'Japan',
         rom: { crc: '4D014C20' },
       },
+      { __type: 'game' },
       {
         __type: 'game',
         comment: 'Ultimate Mortal Kombat 3 (Europe)',
@@ -53,7 +56,7 @@ game (
 
   // const stream = fs.createReadStream(file, { encoding: 'utf8' });
 
-  // datParse(text, {
+  // DAT.parse(text, {
   //   headerRootType: 'clrmamepro',
   //   idFieldName: '__id',
   //   rootTypeFieldName: '__type',
@@ -77,4 +80,69 @@ game (
   //   ],
   //   signal: abortController.signal,
   // });
+});
+
+describe('DAT.stringify', () => {
+  const ENTRIES_FIXTURE = [
+    {
+      __typename: 'clrmamepro',
+      name: 'Nintendo - Super Nintendo Entertainment System',
+      description: 'Nintendo - Super Nintendo Entertainment System',
+    },
+    {
+      __typename: 'game',
+      comment: 'Chrono Trigger (Japan)',
+      origin: 'Japan',
+      rom: { crc: '4D014C20' },
+    },
+    { __typename: 'game' },
+    {
+      __typename: 'game',
+      comment: 'Ultimate Mortal Kombat 3 (Europe)',
+      origin: ['US', 'Asia'],
+      rom: { crc: '1C4C54D2' },
+      year: ['709257600000', '861840000000'],
+      foo: { bar: { foobar: '-10.0', foobax: 'foo "bar" foobax' }, bax: {} },
+      fox: {},
+    },
+  ];
+
+  const DAT_EXPECTED = `clrmamepro (
+  name "Nintendo - Super Nintendo Entertainment System"
+  description "Nintendo - Super Nintendo Entertainment System"
+)
+
+game (
+  comment "Chrono Trigger (Japan)"
+  origin Japan
+  rom (
+    crc 4D014C20
+  )
+)
+
+game ( )
+
+game (
+  comment "Ultimate Mortal Kombat 3 (Europe)"
+  origin US
+  origin Asia
+  rom (
+    crc 1C4C54D2
+  )
+  year 709257600000
+  year 861840000000
+  foo (
+    bar (
+      foobar -10.0
+      foobax "foo \\"bar\\" foobax"
+    )
+    bax ( )
+  )
+  fox ( )
+)
+`;
+
+  it('should stringify to dat format', () => {
+    expect(DAT.stringify(ENTRIES_FIXTURE, { rootTypeFieldName: '__typename' })).toEqual(DAT_EXPECTED);
+  });
 });

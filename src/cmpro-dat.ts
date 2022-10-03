@@ -18,6 +18,8 @@ const hasKorean = (input: string): boolean => !!input.match(koreanRegExp);
 
 //#endregion
 
+//#region DAT Parser
+
 export type DatParseReviver = (key: string, value: any) => any;
 
 export type DatParseOperator = (entry: any, parsing: DatParsing) => { entry?: any } | null;
@@ -52,9 +54,14 @@ export interface DatParsing<T = any> {
   fieldName: string;
 }
 
+const HEADER_ROOT_TYPE_DEFAULT = 'clrmamepro';
+const ID_FIELD_NAME_DEFAULT = '__id';
+const ROOT_TYPE_FIELD_NAME_DEFAULT = '__type';
+
 const CHAR_ALPHANUMERIC_REGEXP = /[a-zA-Z0-9]/;
 const CHAR_LETTER_REGEXP = /[a-zA-Z]/;
 const CHAR_WORD_REGEXP = /[a-zA-Z0-9\.\{\}:?=&@\\/,'+_-]/;
+const NOT_CHAR_WORD_REGEXP = /[^a-zA-Z0-9\.\{\}:?=&@\\/,'+_-]/;
 
 const isCharAlphanumeric = (char: string): boolean => CHAR_ALPHANUMERIC_REGEXP.test(char);
 const isCharBackslash = (char: string): boolean => char === '\\';
@@ -130,9 +137,9 @@ function datParse<T = any>(input: string | stream.Readable, options?: DatParseOp
     }
 
     const parsing: DatParsing = {
-      headerRootType: options?.headerRootType || 'clrmamepro',
-      idFieldName: options?.idFieldName || '__id',
-      rootTypeFieldName: options?.rootTypeFieldName || '__type',
+      headerRootType: options?.headerRootType || HEADER_ROOT_TYPE_DEFAULT,
+      idFieldName: options?.idFieldName || ID_FIELD_NAME_DEFAULT,
+      rootTypeFieldName: options?.rootTypeFieldName || ROOT_TYPE_FIELD_NAME_DEFAULT,
       operators: options?.operators || [],
       revivers: options?.revivers || [],
       data: [],
@@ -534,4 +541,75 @@ function FIELD_VALUE_END(parsing: DatParsing, char: string): DatParseOp {
   return FIELD_VALUE_END;
 }
 
-export { datParse as parse, DatParseOperators as Operators, DatParseRevivers as Revivers };
+//#endregion
+
+//#region DAT serializer
+
+export interface DatStringifyOptions {
+  idFieldName?: string;
+  rootTypeFieldName?: string;
+}
+
+function datStringify(obj: any[], options?: DatParseOptions): string {
+  const rootTypeFieldName = options?.rootTypeFieldName || ROOT_TYPE_FIELD_NAME_DEFAULT;
+  let output: string[] = [];
+
+  const toString = (value: any) => {
+    value = `${value}`;
+
+    if (!isNaN(value)) {
+      return value;
+    }
+
+    if (NOT_CHAR_WORD_REGEXP.test(value)) {
+      value = value.replaceAll(/"/g, '\\"');
+      value = `"${value}"`;
+    }
+
+    return value;
+  };
+
+  const serializeFields = (prop: string, fields: any, indent: string = '') => {
+    const props = Object.keys(fields);
+
+    if (!props.length) {
+      output.push(indent + prop + ' ( )' + (!indent ? '\n' : ''));
+
+      return;
+    }
+
+    output.push(indent + prop + ' (');
+    indent += '  ';
+
+    props.forEach(prop => {
+      const value = fields[prop];
+
+      if (Array.isArray(value)) {
+        value.forEach(x => {
+          if (x !== null && typeof x === 'object') {
+            serializeFields(prop, x, indent);
+          } else {
+            output.push(indent + prop + ' ' + toString(x));
+          }
+        });
+      } else if (value !== null && typeof value === 'object') {
+        serializeFields(prop, value, indent);
+      } else {
+        output.push(indent + prop + ' ' + toString(value));
+      }
+    });
+
+    indent = indent.slice(0, -2);
+    output.push(indent ? indent + ')' : ')\n');
+  };
+
+  obj.forEach(({ [rootTypeFieldName]: rootType, ...fields }) => {
+    serializeFields(rootType, fields);
+  });
+
+  return output.join('\n');
+}
+
+//#endregion
+
+export { DatParseOperators as Operators, DatParseRevivers as Revivers, datParse as parse, datStringify as stringify };
