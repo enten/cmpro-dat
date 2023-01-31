@@ -1,0 +1,4 @@
+npm run build
+cd dist
+# open package.json and remove "scripts" and "devDependencies"
+npm publish

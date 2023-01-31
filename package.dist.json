@@ -1,0 +1,18 @@
+{
+  "name": "cmpro-dat",
+  "version": "0.0.3",
+  "description": "ClrMamePro DAT parser for Node.js.",
+  "license": "MIT",
+  "author": "Steven Enten <steven@enten.fr>",
+  "keywords": ["clrmamepro", "dat", "parser"],
+  "homepage": "https://github.com/enten/cmpro-dat",
+  "bugs": {
+    "url": "https://github.com/enten/cmpro-dat/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/enten/cmpro-dat"
+  },
+  "main": "cmpro-dat.js",
+  "typings": "cmpro-dat.d.ts"
+}

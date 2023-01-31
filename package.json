@@ -23,7 +23,7 @@
     "prepare": "husky install",
     "build": "tsc --project ./tsconfig.lib.json",
     "prebuild": "rm -fr ./dist",
-    "postbuild": "cp ./LICENSE ./package.json ./README.md ./dist",
+    "postbuild": "cp ./package.dist.json ./dist/package.json && cp ./LICENSE ./README.md ./dist",
     "test": "jest",
     "test:watch": "jest --watch",
     "format": "prettier --write .",
