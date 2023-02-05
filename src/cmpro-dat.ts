@@ -142,6 +142,7 @@ function datParse<T = any>(input: string | stream.Readable, options?: DatParseOp
       rootTypeFieldName: options?.rootTypeFieldName || ROOT_TYPE_FIELD_NAME_DEFAULT,
       operators: options?.operators || [],
       revivers: options?.revivers || [],
+      signal: options?.signal,
       data: [],
       line: '',
       nLine: -1,
