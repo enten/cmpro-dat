@@ -1,6 +1,6 @@
 {
   "name": "cmpro-dat",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "ClrMamePro DAT parser for Node.js.",
   "license": "MIT",
   "author": "Steven Enten <steven@enten.fr>",

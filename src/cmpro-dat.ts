@@ -31,6 +31,7 @@ export interface DatParseOptions {
   operators?: DatParseOperator[];
   revivers?: DatParseReviver[];
   signal?: AbortSignal;
+  printCodeSnippetOnError?: boolean;
 }
 
 export type DatParseOp = (parsing: DatParsing, char: string) => DatParseOp;
@@ -42,6 +43,7 @@ export interface DatParsing<T = any> {
   operators: DatParseOperator[];
   revivers: DatParseReviver[];
   signal?: AbortSignal;
+  printCodeSnippetOnError: boolean;
   data: T[];
   line: string;
   nLine: number;
@@ -57,6 +59,8 @@ export interface DatParsing<T = any> {
 const HEADER_ROOT_TYPE_DEFAULT = 'clrmamepro';
 const ID_FIELD_NAME_DEFAULT = '__id';
 const ROOT_TYPE_FIELD_NAME_DEFAULT = '__type';
+
+const PRINT_CODE_SNIPPET_ON_ERROR_DEFAULT = true;
 
 const CHAR_ALPHANUMERIC_REGEXP = /[a-zA-Z0-9]/;
 const CHAR_LETTER_REGEXP = /[a-zA-Z]/;
@@ -143,6 +147,10 @@ function datParse<T = any>(input: string | stream.Readable, options?: DatParseOp
       operators: options?.operators || [],
       revivers: options?.revivers || [],
       signal: options?.signal,
+      printCodeSnippetOnError:
+        typeof options?.printCodeSnippetOnError !== 'undefined'
+          ? !!options.printCodeSnippetOnError
+          : PRINT_CODE_SNIPPET_ON_ERROR_DEFAULT,
       data: [],
       line: '',
       nLine: -1,
@@ -370,7 +378,8 @@ function ROOT_TYPE_BEGIN(parsing: DatParsing, char: string): DatParseOp {
   }
 
   if (!isCharLetter(char)) {
-    printCodeSnippet(parsing.line, parsing.nCol, `Expecting letter here, but got '${char}'`);
+    parsing.printCodeSnippetOnError &&
+      printCodeSnippet(parsing.line, parsing.nCol, `Expecting letter here, but got '${char}'`);
     throw new Error(`ROOT_TYPE_BEGIN: Expecting letter, but got '${char}' (${lineCol(parsing)})`);
   }
 
@@ -400,7 +409,8 @@ function ROOT_TYPE_END(parsing: DatParsing, char: string): DatParseOp {
   }
 
   if (!isCharAlphanumeric(char)) {
-    printCodeSnippet(parsing.line, parsing.nCol, `Expecting alphanumeric here, but got '${char}'`);
+    parsing.printCodeSnippetOnError &&
+      printCodeSnippet(parsing.line, parsing.nCol, `Expecting alphanumeric here, but got '${char}'`);
     throw new Error(`ROOT_TYPE_END: Expecting alphanumeric, but got '${char}' (${lineCol(parsing)})`);
   }
 
@@ -415,7 +425,8 @@ function ROOT_FIELDS_OPEN_BEGIN(parsing: DatParsing, char: string): DatParseOp {
   }
 
   if (!isCharBlank(char)) {
-    printCodeSnippet(parsing.line, parsing.nCol, `Expecting left parenthesis here, but got '${char}'`);
+    parsing.printCodeSnippetOnError &&
+      printCodeSnippet(parsing.line, parsing.nCol, `Expecting left parenthesis here, but got '${char}'`);
     throw new Error(`ROOT_FIELDS_OPEN_BEGIN: Expecting left parenthesis here, but got '${char}' (${lineCol(parsing)})`);
   }
 
@@ -432,7 +443,8 @@ function FIELD_NAME_BEGIN(parsing: DatParsing, char: string): DatParseOp {
   }
 
   if (!isCharLetter(char)) {
-    printCodeSnippet(parsing.line, parsing.nCol, `Expecting letter here, but got '${char}'`);
+    parsing.printCodeSnippetOnError &&
+      printCodeSnippet(parsing.line, parsing.nCol, `Expecting letter here, but got '${char}'`);
     throw new Error(`FIELD_NAME_BEGIN: Expecting letter, but got '${char}' (${lineCol(parsing)})`);
   }
 
@@ -461,7 +473,8 @@ function FIELD_NAME_END(parsing: DatParsing, char: string): DatParseOp {
   }
 
   if (!isCharAlphanumeric(char) && char !== '_') {
-    printCodeSnippet(parsing.line, parsing.nCol, `Expecting alphanumeric here, but got '${char}'`);
+    parsing.printCodeSnippetOnError &&
+      printCodeSnippet(parsing.line, parsing.nCol, `Expecting alphanumeric here, but got '${char}'`);
     throw new Error(`FIELD_NAME_END: Expecting alphanumeric, but got '${char}' (${lineCol(parsing)})`);
   }
 
@@ -492,7 +505,8 @@ function FIELD_VALUE_BEGIN(parsing: DatParsing, char: string): DatParseOp {
   }
 
   if (!isCharWord(char)) {
-    printCodeSnippet(parsing.line, parsing.nCol, `Expecting word here, but got '${char}'`);
+    parsing.printCodeSnippetOnError &&
+      printCodeSnippet(parsing.line, parsing.nCol, `Expecting word here, but got '${char}'`);
     throw new Error(`FIELD_VALUE_BEGIN: Expecting word, but got '${char}' (${lineCol(parsing)})`);
   }
 
@@ -533,7 +547,8 @@ function FIELD_VALUE_END(parsing: DatParsing, char: string): DatParseOp {
   }
 
   if (!isCharWord(char)) {
-    printCodeSnippet(parsing.line, parsing.nCol, `Expecting word here, but got '${char}'`);
+    parsing.printCodeSnippetOnError &&
+      printCodeSnippet(parsing.line, parsing.nCol, `Expecting word here, but got '${char}'`);
     throw new Error(`FIELD_VALUE_END: Expecting word, but got '${char}' (${lineCol(parsing)})`);
   }
 
